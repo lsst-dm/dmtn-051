@@ -13,6 +13,12 @@ the DM replan in July, 2017, referred to just ``baseline'' in the prose
 that follows.
 }
 
+\setDocChangeRecord{%
+\addtohist{}{2017-08-03}{Initial draft.}{Don Petravick}
+\addtohist{1.0}{2017-08-04}{Convert to Latex as DMTN-051.}{Tim Jenness}
+%\addtohist{2}{yyyy-mm-dd}{Future changes}{Future person}
+}
+
 \begin{document}
 \maketitle
 
@@ -21,9 +27,9 @@ that follows.
 The baseline for the LSST provides for two types of file systems --
 ``site'' file systems, which are local to LDF systems at the Base or at
 LDF systems at NCSA, and ``data backbone file systems'' that hold the
-permanent record of data facility operations .
+permanent record of data facility operations.
 
-In baseline, all file systems described below are Posix file systems. A
+In the baseline, all file systems described below are POSIX file systems. A
 subset of these file systems are backed up, as indicated.
 
 \section{Site File Systems}
@@ -44,25 +50,24 @@ Kubernetes containers & NCSA & Yes\tabularnewline
 Production login & NCSA & Yes\tabularnewline
 L1 Alert Log File system & NCSA & No\tabularnewline
 L1 Input/Output Cache & NCSA & No\tabularnewline
-Template Cache & NCSA & NO\tabularnewline
+Template Cache & NCSA & No\tabularnewline
 Login & Base & Yes\tabularnewline
 Project & Base & No\tabularnewline
 Scratch & Base & No\tabularnewline
 Chilean DAC-USER & Base & Yes\tabularnewline
 L1 application Support & Base & Yes\tabularnewline
 Observatory Operations File System & Base & No\tabularnewline
-Datasets & Base & Yes.\tabularnewline
+Datasets & Base & Yes\tabularnewline
 Kubernetes containers & Base & Yes\tabularnewline
 Backup & Base & n/a\tabularnewline
 \hline
 \end{longtable}
 
-Login File systems serve users at each site, and are backed up. Login
-file system are backed up.
+Login file systems serve users at each site, and are backed up.
 
 Project file systems provide a place for output of informal,
 development-oriented outputs of running codes. These are not backed up,
-on the assumption that data her can be regenerated.
+on the assumption that data here can be regenerated.
 
 Scratch file systems hold temporary program output files, and are
 subject to advertised purge policies. This distinguishes scratch file
@@ -70,9 +75,9 @@ systems from Project file systems, which are not purged by system
 administrator applying a policy.
 
 Dataset file systems hold designated datasets that supports development.
-Designated datasets are backed up, (some datasets are easily obtain-able
-from the internet, and do not require a backup. However files in the
-dataset file systems are not considered to part of the formal record of
+Designated datasets are backed up, whilst some datasets are easily obtain-able
+from the internet, and do not require a backup. However, files in the
+dataset file systems are not considered to be part of the formal record of
 the survey. Any files that would become part of the formal system would
 be replicated and kept in the data backbone, discussed below.
 
@@ -81,26 +86,26 @@ for the corresponding data access centers. The file systems need to be
 backed up.
 
 Backup file systems provide for copies of recent data. Backup file
-systems have independent implementation from the systems they backup.
+systems have independent implementations from the systems they backup.
 Backup file systems have a role as secondary disaster recovery data
 recovery resources, but are not primary sources of storage for disaster
 recovery.
 
 The template Cache, L1 Input/Output file system, and L1 Alert Log
-support pay special role supporting prompt processing at NCSA.
+play a special role in supporting prompt processing at NCSA.
 
-The L1 application support file system support LDF L1 services at the
+The L1 application support file system supports LDF L1 services at the
 base.
 
 The Observatory Operations file server is an intermediate file system at
-the Base. The spectrograph, Comcam and LSSTCam archivers write this file
+the Base. The spectrograph, Comcam and LSSTCam archivers write to this file
 system, which is exported to designated observatory computers, including
-the commission cluster. Data from this file system is further ingested
-into the raw file partition of the e data backbone.
+the commissioning cluster. Data from this file system is further ingested
+into the raw file partition of the data backbone.
 
 \section{Data Backbone File Systems}
 
-Data backbone file systems have these main distinguishing
+Data backbone file systems \citedsp{LDM-230} have these main distinguishing
 characteristics.
 
 \begin{itemize}
@@ -119,7 +124,7 @@ characteristics.
   The integrity of these data residing on these file systems are
   routinely monitored using cataloged meta-data.
 \item
-  Data are only entered into these file system by processes run in
+  Data are only entered into these file systems by processes run in
   change-controlled production processes.
 \item
   File systems are presented as POSIX file systems.
@@ -130,24 +135,28 @@ characteristics.
   Only data from data backbone file systems are used to create formal
   production products.
 \item
-  Only data from data backbone file system are use to produce file based
-  products specified in the DPDD.
+  Only data from data backbone file systems are used to produce file based
+  products specified in the \DPDD.
 \end{itemize}
 
-The baseline provides provides for the following file systems:
+The baseline provides for the following file systems:
 
-The \textbf{Raw} file system holds pixel data from the spectrograph,
-COMcam, and LSSTcam and file ingested from the Engineering and Facility
-large file annex.
+\begin{itemize}
+\item The \textbf{Raw} file system holds pixel data from the spectrograph,
+COMcam, and LSSTcam, and files ingested from the Engineering and Facility
+Database large file annex \citedsp{LTS-210}.
 
-The \textbf{Calibrations} file system holds computed calibration
+\item The \textbf{Calibrations} file system holds computed calibration
 products. Raw data leading to calibrations, such as raw flat and bias
 frames are held in the raw file system.
 
-The \textbf{Production Products} file system contains file other than
+\item The \textbf{Production Products} file system contains files other than
 calibration file products produced with the formal production system.
 
-The \textbf{Computed Engineering Products} File system holds files
+\item The \textbf{Computed Engineering Products} file system holds files
 related to the miscellaneous production processes, not covered above.
+\end{itemize}
+
+\bibliography{lsst,refs_ads}
 
 \end{document}
