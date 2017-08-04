@@ -1,24 +1,23 @@
-sudo: false
+sudo: true
+dist: trusty
+services:
+  - docker
 language: python
-matrix:
-  include:
-    - python: "3.5"
-      env: LTD_MASON_BUILD=true
-install:
-  - pip install -r requirements.txt
-  - pip install "ltd-mason>=0.2,<0.3"
+python:
+  - '3.5'
+before_install:
+  - "pip install 'lander>=0.1.0,<0.2'"
 script:
-  - sphinx-build -b html -a -n -d _build/doctree . _build/html
+  # Compile PDF using containerized lsst-texmf
+  - "docker run --rm -v `pwd`:/workspace -w /workspace lsstsqre/lsst-texmf:latest sh -c 'make'"
 after_success:
-  - ltd-mason-travis --html-dir _build/html
+  - "lander --pdf DMTN-051*.pdf --upload --lsstdoc DMTN-051.tex --env=travis --ltd-product $PRODUCT --handle $HANDLE"
 env:
   global:
-    - LTD_MASON_BUILD=false  # disable builds in regular text matrix
-    - LTD_MASON_PRODUCT="dmtn-051"
-    # Add AWS and LTD Keeper credentials as encrypted secrets here
-
-    - secure: "kUZNMNn9F7GnfV5RoKu50LTeovNyFZUoB9PdP+LYaphn6FNYjNNOPzrTtLWLbUiUw5laySxzzq1noTRIjYxSNok1f2vkBdmKwcT5PUTXV+CklJMuDtSTVH8dtT7QGkrlYt8+nVZKxrZvftxrF5hVjBlb2qFwEZYesQw0wO+hg95oKCLOlk1I2+EI1PqY/42XhQXc7oNZbKLOyBNeobW+TTw6NUFQUe/faSzo4+AWWijtFx/uu2iCGuwoWgadXsd46wIs8/DzqYs51fPzrsLzmqn3z+JKrA/jNCOaCzbXFUUdcGOgYqIlXBZUy+fFkYyEbUPz1UOKJ0+5C4DFgZ1qCCD6jK5b5mT9gPl+5L2tqI0us7MsjxUKg07K60mm7RBziuTMr+WJIVI9uNZxRn1SR2PU830j9KPr2NdD77pals5xg62XrFZ17eI+9RmQ1B5KcuWqsbu4vcaPCFekt2DeB7GX5F4fZrAkbyePmw5Ayn7/lMRzCZrYTAnKRbZpm7rMTOm9Ddq44FMI6gWUN0sI7fhpEUXMMWk8WFX2HDi6/ElCq7yL0m5ltTeZW53kiblJ9k0oCL2KPN18Ey1RBol+WZKFd7qWKAe11+t9D4x3ovALBcUtC8PKwLd+Gytlztk7se7TySB2ShxGQRTE7cAwrzkrOY7PqEv9GMFczIriUCE="
-    - secure: "HBP28yETZPRYwh56BpMRgVDs8QCxrqa8yOlZ8+avOFlje3c36HQCaTPYAlT1msUuAFJSpeRI+jfJYcoqUz8U571lJC2F3IfcKEgpGLfR7+EKxk6hljarxHrNuCDK33VrfNozZuX5eVJv75y96Nelk18wc6W6ao0mB1V7GYGLS4jmqGmODzBPGbEUpGb5th5eVIQwbCeb2nhMCcm7xqLhJpVXPyCgklW60TFLH3gaBC5maDItwkFAyRFupO9dbCn5laD/MoO+jiRDceSkkpFm2jXpAdcEsjKvtXT10XwuQODWpMR0yZKr14SHPwZNKFSpv1AjpAKms1oaMwXC6UqEN8WNLXRtp27/DHTqLI29D9p3U/dvuPxwXzbMvvDagjMh3LSFggi1e+mOOvsSM+Szha8w34r+RbP9gSaBS9WccwqsRB5AmJxqm0w2kpidfH81U2szORk2KMf6zLLMM6oY3U9moHSOXlimaG/43ImF60Nwxkz8+l/1GlixiXjt5E20QEiiMnZeWHuumIRxz0mhldJR0UbUe2Uib66SJf6jogF1+/j8+r2+X9MCsX/3GXMsDgoCrlUilCbBSKZikV1D3zwpyeA/+0YUWzfy3wo7OMU8Un373d+A+oWCN7fGbZSejNAHkgoE4J3vqaEgtHFJ2YE3RlTJCnZWT8J7DHa39EA="
-    - secure: "RFV3erEq734CAVUU5n3x0SABMwJRNlclYV4UnBmrtg60GR3OExm62E5MVaRjHhEZrDNbn6OdgEJldzIvapZMU2AizbXchiIQOOuX0X0Dx1ZCWmmYj58lfcjF1L/kFmG/KgWoxZ3x9WjxO9YB2I3p9TpUODQdSGBVDU5tQ3c/+VGIdxTDG0LpfPa5KlJlkcZ+dNnoBFXNTucSAJT3Beb/DBYjpe8n2OXfdsWNtmhyH8qsPtwimTT0dLNdoHrQ2Cp8NM21zoTNKRnbAEBytgg2phoQUW0jZ2fH3MCj0IOQdfdJX8ky6Hp/Z8Sh9GcD8f8y9dswJDvpX6sC20tWWg4WIlok+CsFL8CLjSr6BTeXfRm9EqV+5d4aodJlQdqSbeDgUqPBDjtUv1ccvWAjCZka9TB7y9YKUMzgm/pDH5yUMx3f+kIh+x0nTobxOd9FRHXikWebfxZlIXwf5+J6IPNAsnW0bQshGdvw1VKgIyuPiUCfXYQITROGmPDORXsO0zSQxGGnbuHjldAlEFcEkEyCIFUbkgn5RK6u4e0YiyetFtnR/rid1eQD9mh9/s7801/HgEBP+clbPycOAuoA6jMoaCREkOLihmCmYy8r5x0PM0szma71u09eS4eAPGK02LC/QV2UoQpfeT0oFRHQEpvHGYC7dRa1Wb8vlZ8ISRdmQbU="
-    - secure: "qO94uIuAODdYzwBoV6I6ZGz8XL2LLzbg2J8hhsPZuJxKQUdwaEzxNBMhkNzmf0hNaDwb56cEl2D49tnuGz/D45ez87GJTlvtzf8Q/YHUUFRPt7G5IjoG3GEGeJqJKnS0o5oEyYGMdkeiyEur6o0/jmGnRaizOxUlHoIfe7fjdoqlFnQdbL/mmtbUe1EfoVgDl/lk/0kfeVfTwrQ8FO+ijk5W5sLXCYpDD2Np27nwL9MDB3/FJajERIyeT/HgOa8irEo5E0ZueDoWEaL5HhPgOqIxTi/Of8R67JahqQyv6HYQFXNUj8kY44lExYYTURT1zqEIXvvtNYojAXpPbNHg1w7RnIk3wIyALS9F0hCuGf5m896beRZrzpB1xbPSIfcmCYfb6PUOytBUPgR9uCDOaH3nTBxAXE8bi5PlTXhEQkKG8ysdQp2O2IWTuPpMHfzFOZRax2ExKZCtIZy5nedu9YXARzVsDNw2Dpth7lqnt+3f1HrxyUAE0noB7MCSTBQ424MKRl+Fbf2gI19v6c3r19IKmjy9wAjdyC9TloiseezLTulvKdtkH6bErC7O8FIQtVfXr4x3T2mmoGm6PL4vyyDTD79j1RfViq18E4GZkk4Lv/8En547qnk/5blyJPsRgprvnmCZVee1GbbHpFg+NNAdaFvGLlSWYrJ6xaD4sLY="
-    - secure: "Lghhb0lDS8i6WJ5/y6DFtuvrV3DJATGCUOS4/UKIl7XsmNlpoDVq7PtP31N85Rf5jb7dytJw6eTlc3hPY7D9u84OBCR3sjBM00psu3hqm3gPcjvuELIxKdjJTHSiCraBJv/GuF7Nxg3MfJ2FNF7jQi40e4WUabs5BpDIcCBWduKnn9qEcsPTn99+U/pBGkwVXMyM2zaovFMthwMtVAhC6mkN3LR+CFXe9c+2P1/MvCgO5YFfoKa7ePRNRGL68lzj3yFM5zewXPeV5e9NpnvfpWd5KBEgraql9fMB0uNyZwO4EkYgpdPemqHWa9U0B7QltqLm1Ef/FS9UrBiPqIAoNAJeZM7H/3AyWWWMB00gYIW8j06rs78JuwezxQPLf3ThYZIOYmRuaaYsUnZFuN5VF/ki7EBcF/FpTq2ImwQZfukbMmQDYdvyXHV+YkRqdqUd8F6ZoEnURRUVoe4pEoCZdb7VVGxdinNlyalrKMDH5yBfGswNvyEMHaPx4UVBgEwOI4qYc+i6UO/KboLC2Qt+JZUUhhGCgaij5bwXn0OXx+d5GsqkALoMSX4OJT0HalO/YryUUmvP7LH7xMO876FD9dKMF2sP6tDhaQd/nd1rH91xYwzo3++ZIPIBe3AK9rY2x1iCSCR+jWQ4YboQVVjWz1vn/0tPSQ3eqzX0/+3pJFA="
+    # Handle needs to be explicitly set until https://github.com/lsst-sqre/metasrc handles LaTeX inputs
+    - HANDLE="DMTN-051"
+    - PRODUCT="dmtn-051"
+    # LTD Keeper credentials
+    - secure: "kxWkecmhxXyjxHGia/69QJxIUlJGaP5z8sQZ/BjfXiOpJdlFJmcWt7pZ0fTIK5ElXH4szvuRQESzZCmQio1gw1ZmLv+1S2xuy83qTkuTArxnb+MC5h4LwTPedDcssAnquZXIBFwGjNnansXthROgzq368XXXni2FHhzVHPBRLZp3HhtPUgdiR86c4lQoYeHuw/vgMug5xW0dOIzcWS/zTh6RIajMc6xHRxI85JE5+jBptUd/RS74pwdMp/Lyniw7scCHI8dE9m6U5tP5lZjPbIzB/V8DG1bJNSHmHPzsLfUHCX//rWuiMFhfH1g7i/E2fRq0trWnhuRMS4nHc9dnkkMgU8KpiUaKT1hjZMO53Rnvwnh/OGE07vg6rMNkJNB9xCOsWve+ABEUL2bCRA9TbE0smjQCWIBdjRkNEgxAfTTzokKDb3ztU2Xf57XdgK+GQ2EQETEiC/OW+QocUJr4vFJz1LG8pnkJrD9ZBAt2NEcZZor5tgw7DSRpZ7lxQ8NUpNgcf//GWjOL3GNDUJDQQkbAJqVq0exAKQtkoq5eFVuHtJ3UgWbidRVNwmlxOo/Y5v3R5MKsX+5EmYA1OZcWVBPfuihizkMmU2AP6ekKIhYNcRQcAkRuP+ftdFrIVKOi+FYfyR4D6IA22sWjSWIY/fuQZflAvFwjR+xcqVP2HUY="
+    # AWS credentials
+    - secure: "sZQVmytckLz05yh75EoTEXmBup1x5VogrXtUlOy/1c2YsgIJlWiEtTi7GMeKVqyjD0FLT/VXBegQullWwabIWN+mkPaOrjAi1gVDSGn6SgZ+YzKTW/9xO76RbX33V1Et8a89N7g99FJOYr4tpOBq6oiKrs8wyrUHJIJbIgqlgoJOkW5L8DCTJxnZtO38zdUP4L0iSclHIeX7FpY0RQPnKkI2R4Jf1bV2+pQ2GSX6KLf+7bg+/EnecPJESeS8z0WGT5Af7d7QkcCn5bRZaQtuAlePrmCu7cN292u3nEoQBlwtsUc3EkZZtOSPvaRlDoadLFWZla2yUqIsxhAlKQYnOaSUnq5bBYOP1OsLYTQ5zfjYiGipOaYCVBtvCUHbq04ku0V16KNHorB5UEIPxjOToBuVQl5Xm4fVE3y0SDYmT9WFMfrlIPfZoxMmRv7dEOGjHy7bA8DcUH0isiBY7yxIOccMMJsmYiU4eF8ZzY2z7MGfiVONB3zSAaWv2VyR3NZHliWXmGScjnBhoYlvdFcx8go+MQlghtF0iAIVh+uK9Kv9pt9plxl0b0xHmFqK+U4yijoz+TAzkzuZPzyvmReuxzK5MfRrVNruBE57Z7plAGSUiu01ND4sfZlqJJfj/9lDnLAjy6bwH+dl6etEdvLNdJzRbva9UFy/McvWsB0GMIc="
