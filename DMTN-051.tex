@@ -1,0 +1,162 @@
+\documentclass[toc,DM]{lsstdoc}
+\usepackage{color}
+\title{LDF File Systems Baseline Overview}
+\author{Don Petravick}
+\date{2017-08-03}
+\setDocRef{DMTN-051}
+\setDocUpstreamLocation{\url{https://github.com/lsst-dm/dmtn-051}}
+
+\setDocAbstract{%
+This is a descriptive and explanatory document, not a normative
+document. This document explains the proposed baseline as presented in
+the DM replan in July, 2017, referred to just ``baseline'' in the prose
+that follows.
+}
+
+\setDocChangeRecord{%
+\addtohist{}{2017-08-03}{Initial draft.}{Don Petravick}
+\addtohist{1.0}{2017-08-09}{Convert to Latex as DMTN-051.}{Tim Jenness}
+%\addtohist{2}{yyyy-mm-dd}{Future changes}{Future person}
+}
+
+\begin{document}
+\maketitle
+
+\section{Overview}
+
+The baseline for the LSST provides for two types of file systems --
+``site'' file systems, which are local to LDF systems at the Base or at
+LDF systems at NCSA, and ``data backbone file systems'' that hold the
+permanent record of data facility operations.
+
+In the baseline, all file systems described below are POSIX file systems. A
+subset of these file systems are backed up, as indicated.
+
+\section{Site File Systems}
+
+\begin{longtable}[]{@{}lll@{}}
+\hline
+\textbf{File System} & \textbf{Where} & \textbf{Backed up?}\tabularnewline
+\hline
+\endhead
+Login & NCSA & Yes\tabularnewline
+Project & NCSA & No\tabularnewline
+Scratch & NCSA & No\tabularnewline
+PDAC-user & NCSA & Yes\tabularnewline
+USDAC-User & NCSA & Yes\tabularnewline
+Backup & NCSA & n/a\tabularnewline
+Datasets & NCSA & Yes\tabularnewline
+Kubernetes containers & NCSA & Yes\tabularnewline
+Production login & NCSA & Yes\tabularnewline
+L1 Alert Log File system & NCSA & No\tabularnewline
+L1 Input/Output Cache & NCSA & No\tabularnewline
+Template Cache & NCSA & No\tabularnewline
+Login & Base & Yes\tabularnewline
+Project & Base & No\tabularnewline
+Scratch & Base & No\tabularnewline
+Chilean DAC-USER & Base & Yes\tabularnewline
+L1 application Support & Base & Yes\tabularnewline
+Observatory Operations File System & Base & No\tabularnewline
+Datasets & Base & Yes\tabularnewline
+Kubernetes containers & Base & Yes\tabularnewline
+Backup & Base & n/a\tabularnewline
+\hline
+\end{longtable}
+
+Login file systems serve users at each site, and are backed up.
+
+Project file systems provide a place for output of informal,
+development-oriented outputs of running codes. These are not backed up,
+on the assumption that data here can be regenerated.
+
+Scratch file systems hold temporary program output files, and are
+subject to advertised purge policies. This distinguishes scratch file
+systems from Project file systems, which are not purged by system
+administrator applying a policy.
+
+Dataset file systems hold designated datasets that supports development.
+Designated datasets are backed up, whilst some datasets are easily obtain-able
+from the internet, and do not require a backup. However, files in the
+dataset file systems are not considered to be part of the formal record of
+the survey. Any files that would become part of the formal system would
+be replicated and kept in the data backbone, discussed below.
+
+The DAC file systems (PDAC, USDAC, CHILEANDAC) hold user-created files
+for the corresponding data access centers. The file systems need to be
+backed up.
+
+Backup file systems provide for copies of recent data. Backup file
+systems have independent implementations from the systems they backup.
+Backup file systems have a role as secondary disaster recovery data
+recovery resources, but are not primary sources of storage for disaster
+recovery.
+
+The template Cache, L1 Input/Output file system, and L1 Alert Log
+play a special role in supporting prompt processing at NCSA.
+
+The L1 application support file system supports LDF L1 services at the
+base.
+
+The Observatory Operations file server is an intermediate file system at
+the Base. The spectrograph, Comcam and LSSTCam archivers write to this file
+system, which is exported to designated observatory computers, including
+the commissioning cluster. Data from this file system is further ingested
+into the raw file partition of the data backbone.
+
+\section{Data Backbone File Systems}
+
+Data backbone file systems \citedsp{LDM-230} have these main distinguishing
+characteristics.
+
+\begin{itemize}
+\item
+  These file systems hold the permanent file-based record of the survey.
+\item
+  Data on these file systems are synchronized between the base and NCSA
+  sites according to policy.
+\item
+  These file systems are subject to change-controlled disaster recovery
+  plans.
+\item
+  All files are supported by location, meta-data, and provenance
+  database entries.
+\item
+  The integrity of these data residing on these file systems are
+  routinely monitored using cataloged meta-data.
+\item
+  Data are only entered into these file systems by processes run in
+  change-controlled production processes.
+\item
+  File systems are presented as POSIX file systems.
+\item
+  Designated data may only be accessed by access methods which stage
+  data from tape.
+\item
+  Only data from data backbone file systems are used to create formal
+  production products.
+\item
+  Only data from data backbone file systems are used to produce file based
+  products specified in the \DPDD.
+\end{itemize}
+
+The baseline provides for the following file systems:
+
+\begin{itemize}
+\item The \textbf{Raw} file system holds pixel data from the spectrograph,
+COMcam, and LSSTcam, and files ingested from the Engineering and Facility
+Database large file annex \citedsp{LTS-210}.
+
+\item The \textbf{Calibrations} file system holds computed calibration
+products. Raw data leading to calibrations, such as raw flat and bias
+frames are held in the raw file system.
+
+\item The \textbf{Production Products} file system contains files other than
+calibration file products produced with the formal production system.
+
+\item The \textbf{Computed Engineering Products} file system holds files
+related to the miscellaneous production processes, not covered above.
+\end{itemize}
+
+\bibliography{lsst,refs_ads}
+
+\end{document}
