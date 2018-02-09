@@ -10,7 +10,6 @@ before_install:
 script:
   # Compile PDF using containerized lsst-texmf
   - "docker run --rm -v `pwd`:/workspace -w /workspace lsstsqre/lsst-texmf:latest sh -c 'make'"
-after_success:
   - "lander --pdf DMTN-051*.pdf --upload --lsstdoc DMTN-051.tex --env=travis --ltd-product $PRODUCT --handle $HANDLE"
 env:
   global:
